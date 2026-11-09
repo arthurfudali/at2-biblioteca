@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.isbn import isbn13_valido, normalizar_isbn
 
@@ -25,3 +25,16 @@ class LivroSaida(BaseModel):
     autor: str
     quantidade_total: int
     disponiveis: int
+
+
+class LeitorEntrada(BaseModel):
+    nome: str = Field(min_length=3, max_length=120)
+    cpf: str = Field(pattern=r"^\d{11}$", description="Somente os 11 dígitos")
+    email: EmailStr
+
+
+class LeitorSaida(BaseModel):
+    id: int
+    nome: str
+    cpf: str
+    email: str

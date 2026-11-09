@@ -54,3 +54,26 @@ def atualizar_livro(conexao: sqlite3.Connection, livro_id: int, dados: dict) -> 
 
 def excluir_livro(conexao: sqlite3.Connection, livro_id: int) -> None:
     conexao.execute("DELETE FROM livros WHERE id = ?", (livro_id,))
+
+
+def listar_leitores(conexao: sqlite3.Connection) -> list[dict]:
+    linhas = conexao.execute("SELECT * FROM leitores ORDER BY nome").fetchall()
+    return [dict(linha) for linha in linhas]
+
+
+def buscar_leitor(conexao: sqlite3.Connection, leitor_id: int) -> dict | None:
+    linha = conexao.execute("SELECT * FROM leitores WHERE id = ?", (leitor_id,)).fetchone()
+    if linha is None:
+        return None
+    return dict(linha)
+
+
+def inserir_leitor(conexao: sqlite3.Connection, dados: dict) -> int:
+    try:
+        cursor = conexao.execute(
+            "INSERT INTO leitores (nome, cpf, email) VALUES (?, ?, ?)",
+            (dados["nome"], dados["cpf"], dados["email"]),
+        )
+    except sqlite3.IntegrityError as erro:
+        raise RegistroDuplicado from erro
+    return cursor.lastrowid
