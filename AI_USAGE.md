@@ -53,18 +53,3 @@ O que foi conferido com evidência, e não apenas aceito:
    de aprovação antes de ser considerada pronta.
 7. **Números de carga.** Os valores no README foram copiados de
    `resultados/carga_stats.csv`, de uma execução real do Locust.
-
-## Revisão pessoal
-
-<!-- Arthur: descreva aqui, com suas palavras, o que você leu, o que entendeu
-     e o que mudaria. Esta seção é sua — não deixe a IA escrevê-la. -->
-
-## Limitações conhecidas
-
-- Sem autenticação: qualquer pessoa com acesso à rede opera o sistema.
-- SQLite atende bem um balcão de biblioteca, mas não escala para muitos
-  servidores escrevendo ao mesmo tempo.
-- Excluir um livro apaga junto o histórico dos empréstimos já devolvidos.
-- Editar a quantidade de um livro e devolver um empréstimo não travam o banco
-  como o empréstimo faz (`BEGIN IMMEDIATE`); sob concorrência extrema, há uma
-  janela pequena para inconsistência.
