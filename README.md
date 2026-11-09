@@ -38,7 +38,7 @@ O banco `biblioteca.db` é criado na primeira execução. Para usar outro arquiv
 ## Testes
 
 ```bash
-uv run pytest -v                        # tudo (52 testes)
+uv run pytest -v                        # tudo (53 testes)
 uv run pytest -v -m integration         # integração (API + páginas, TestClient)
 uv run pytest -v -m e2e                 # ponta a ponta no navegador
 uv run pytest -v -m accessibility       # Axe WCAG 2.1 AA + teclado
@@ -72,12 +72,12 @@ funcionando.
 
 ### Resultados (2026-11-09, WSL2, 1 processo uvicorn, banco vazio no início)
 
-50 usuários, entrada de 10/s, 60 s — CSVs completos em `resultados/`.
+50 usuários, entrada de 10/s, 60 s — números copiados de `resultados/carga_stats.csv`.
 
 | Métrica | Resultado | Meta (PRD) |
 |---------|-----------|------------|
-| Requisições | 1 689 | — |
-| **RPS** (média) | **28,55** | — |
+| Requisições | 1 684 | — |
+| **RPS** (média) | **28,52** | — |
 | Tempo de resposta mediano | 9 ms | — |
 | **p95** | **41 ms** | < 500 ms ✅ |
 | p99 | 200 ms | — |
@@ -85,11 +85,11 @@ funcionando.
 
 | Endpoint | Reqs | p95 |
 |----------|------|-----|
-| GET /api/livros | 670 | 17 ms |
+| GET /api/livros | 667 | 17 ms |
 | GET /emprestimos (HTML) | 384 | 18 ms |
 | POST /api/livros | 309 | 38 ms |
-| POST /api/emprestimos | 138 | 38 ms |
-| POST /api/emprestimos/[id]/devolucao | 138 | 36 ms |
+| POST /api/emprestimos | 137 | 38 ms |
+| POST /api/emprestimos/[id]/devolucao | 137 | 36 ms |
 | POST /api/leitores | 50 | 460 ms |
 
 **Como ler esses números:**

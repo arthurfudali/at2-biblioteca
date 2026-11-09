@@ -12,6 +12,7 @@ import random
 
 from faker import Faker
 from locust import HttpUser, between, task
+from locust.exception import StopUser
 
 fake = Faker("pt_BR")
 
@@ -31,10 +32,16 @@ class UsuarioDaBiblioteca(HttpUser):
         leitor = {"nome": fake.name(), "cpf": fake.unique.cpf().replace(".", "").replace("-", ""),
                   "email": fake.unique.email()}
         resposta = self.client.post("/api/leitores", json=leitor)
+        if resposta.status_code != 201:
+            # Sem leitor o usuário virtual não tem o que fazer; para só ele,
+            # em vez de espalhar exceções pelo relatório.
+            raise StopUser()
         self.leitor_id = resposta.json()["id"]
 
         self.ids_dos_meus_livros = []
         self.cadastrar_livro()
+        if not self.ids_dos_meus_livros:
+            raise StopUser()
 
     # O peso (5, 3, 2, 1) define a proporção: listar acontece 5x mais que emprestar.
     @task(5)

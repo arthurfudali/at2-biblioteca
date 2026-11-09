@@ -30,11 +30,26 @@ def test_cadastrar_livro_com_isbn_invalido_retorna_422(cliente):
 
     # Assert
     assert resposta.status_code == 422
+    erro = resposta.json()["detail"][0]
+    assert erro["loc"] == ["body", "isbn"]
+    assert "ISBN-13 inválido" in erro["msg"]
 
 
 def test_cadastrar_isbn_com_hifens_e_normalizado(cliente):
     # Arrange
     dados_do_livro = LivroFactory.criar_dados(isbn="978-85-359-0277-8")
+
+    # Act
+    resposta = cliente.post("/api/livros", json=dados_do_livro)
+
+    # Assert
+    assert resposta.status_code == 201
+    assert resposta.json()["isbn"] == "9788535902778"
+
+
+def test_cadastrar_isbn_com_espacos_e_normalizado(cliente):
+    # Arrange
+    dados_do_livro = LivroFactory.criar_dados(isbn="978 85 359 0277 8")
 
     # Act
     resposta = cliente.post("/api/livros", json=dados_do_livro)

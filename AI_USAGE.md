@@ -14,9 +14,12 @@ do WSL com acesso ao diretório do projeto.
 | Testes | Geração das factories, fixtures, testes de integração, Page Objects, testes E2E e de acessibilidade, `locustfile.py` |
 | Documentação | Rascunho de `PRD.md`, `AGENTS.md`, `README.md` e deste arquivo |
 
-O desenvolvimento seguiu TDD: para cada parte, a IA escreveu os testes,
-mostrou que falhavam e só então escreveu o código. O histórico de commits
-mostra uma etapa por commit.
+Os testes de **integração** foram feitos em TDD: a IA escreveu os testes,
+executou e mostrou que falhavam, e só então escreveu o código. Os testes
+**E2E e de acessibilidade** foram escritos depois das páginas prontas, então
+nem todos foram vistos falhando antes — os 3 que falharam foram justamente os
+que revelaram o bug do item 3 abaixo. O histórico de commits mostra uma etapa
+por commit.
 
 ## Como o resultado foi auditado
 
@@ -41,10 +44,15 @@ O que foi conferido com evidência, e não apenas aceito:
 4. **Condição de corrida no empréstimo.** Identificado na revisão que duas
    requisições simultâneas poderiam emprestar o último exemplar; corrigido
    com `BEGIN IMMEDIATE`.
-5. **Estabilidade.** A suíte completa foi executada 3 vezes seguidas com 100%
+5. **Revisão independente.** Ao final, uma segunda instância do modelo, sem
+   ter escrito o código, revisou o projeto inteiro e rodou testes de
+   concorrência reais (20 empréstimos simultâneos do último exemplar: 1 aceito,
+   19 recusados). Ela apontou, entre outros, que este arquivo exagerava o uso
+   de TDD e que os números do README não batiam com o CSV — ambos corrigidos.
+6. **Estabilidade.** A suíte completa foi executada 3 vezes seguidas com 100%
    de aprovação antes de ser considerada pronta.
-6. **Números de carga.** Os valores no README vêm de uma execução real do
-   Locust (CSVs em `resultados/`), não de estimativa.
+7. **Números de carga.** Os valores no README foram copiados de
+   `resultados/carga_stats.csv`, de uma execução real do Locust.
 
 ## Revisão pessoal
 
@@ -57,3 +65,6 @@ O que foi conferido com evidência, e não apenas aceito:
 - SQLite atende bem um balcão de biblioteca, mas não escala para muitos
   servidores escrevendo ao mesmo tempo.
 - Excluir um livro apaga junto o histórico dos empréstimos já devolvidos.
+- Editar a quantidade de um livro e devolver um empréstimo não travam o banco
+  como o empréstimo faz (`BEGIN IMMEDIATE`); sob concorrência extrema, há uma
+  janela pequena para inconsistência.

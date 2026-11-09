@@ -121,6 +121,7 @@ def test_devolver_duas_vezes_retorna_409(cliente, livro_cadastrado, leitor_cadas
 
     # Assert
     assert resposta.status_code == 409
+    assert resposta.json()["detail"] == "Este empréstimo já foi devolvido"
 
 
 def test_devolver_emprestimo_inexistente_retorna_404(cliente):
@@ -155,6 +156,8 @@ def test_excluir_livro_com_emprestimo_ativo_retorna_409(cliente, livro_cadastrad
 
     # Assert
     assert resposta.status_code == 409
+    assert resposta.json()["detail"] == "Livro com empréstimo ativo não pode ser excluído"
+    assert cliente.get(f"/api/livros/{livro_cadastrado['id']}").status_code == 200
 
 
 def test_excluir_livro_com_emprestimos_devolvidos_retorna_204(
@@ -188,3 +191,6 @@ def test_reduzir_quantidade_abaixo_dos_ativos_retorna_409(cliente, livro_cadastr
 
     # Assert
     assert resposta.status_code == 409
+    assert "2 exemplares emprestados" in resposta.json()["detail"]
+    livro_depois = cliente.get(f"/api/livros/{livro_cadastrado['id']}").json()
+    assert livro_depois["quantidade_total"] == 2

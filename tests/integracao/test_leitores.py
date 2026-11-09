@@ -29,6 +29,7 @@ def test_cadastrar_leitor_email_invalido_retorna_422(cliente):
 
     # Assert
     assert resposta.status_code == 422
+    assert resposta.json()["detail"][0]["loc"] == ["body", "email"]
 
 
 def test_cadastrar_leitor_cpf_com_letras_retorna_422(cliente):
@@ -40,6 +41,7 @@ def test_cadastrar_leitor_cpf_com_letras_retorna_422(cliente):
 
     # Assert
     assert resposta.status_code == 422
+    assert resposta.json()["detail"][0]["loc"] == ["body", "cpf"]
 
 
 def test_cadastrar_leitor_cpf_duplicado_retorna_409(cliente):
