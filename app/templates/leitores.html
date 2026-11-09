@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% set pagina_atual = "leitores" %}
+{% block titulo %}Leitores{% endblock %}
+
+{% block conteudo %}
+<h1>Leitores</h1>
+
+<section aria-labelledby="titulo-cadastro">
+  <h2 id="titulo-cadastro">Cadastrar leitor</h2>
+  <form method="post" action="/leitores">
+    <div class="campo">
+      <label for="nome">Nome</label>
+      <input id="nome" name="nome" required autocomplete="name" value="{{ dados.nome or '' }}">
+    </div>
+
+    <div class="campo">
+      <label for="cpf">CPF</label>
+      <input id="cpf" name="cpf" required inputmode="numeric" aria-describedby="dica-cpf"
+             value="{{ dados.cpf or '' }}">
+      <p id="dica-cpf" class="dica">Somente os 11 dígitos, sem pontos ou traço.</p>
+    </div>
+
+    <div class="campo">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" required autocomplete="email"
+             value="{{ dados.email or '' }}">
+    </div>
+
+    <button type="submit">Cadastrar leitor</button>
+  </form>
+</section>
+
+<section aria-labelledby="titulo-lista">
+  <h2 id="titulo-lista">Leitores cadastrados</h2>
+  {% if leitores %}
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Nome</th>
+        <th scope="col">CPF</th>
+        <th scope="col">E-mail</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for leitor in leitores %}
+      <tr>
+        <td>{{ leitor.nome }}</td>
+        <td>{{ leitor.cpf }}</td>
+        <td>{{ leitor.email }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Nenhum leitor cadastrado.</p>
+  {% endif %}
+</section>
+{% endblock %}

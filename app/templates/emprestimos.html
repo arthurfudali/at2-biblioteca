@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% set pagina_atual = "emprestimos" %}
+{% block titulo %}Empréstimos{% endblock %}
+
+{% block conteudo %}
+<h1>Empréstimos</h1>
+
+{% if aviso %}
+  <p class="sucesso" role="status">{{ aviso }}</p>
+{% endif %}
+
+<section aria-labelledby="titulo-novo">
+  <h2 id="titulo-novo">Novo empréstimo</h2>
+  <p class="dica">Prazo de 14 dias. Multa de R$ 2,00 por dia de atraso. Máximo de 3 livros por leitor.</p>
+  <form method="post" action="/emprestimos">
+    <div class="campo">
+      <label for="livro_id">Livro</label>
+      <select id="livro_id" name="livro_id" required>
+        <option value="">Selecione…</option>
+        {% for livro in livros %}
+        <option value="{{ livro.id }}">{{ livro.titulo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="campo">
+      <label for="leitor_id">Leitor</label>
+      <select id="leitor_id" name="leitor_id" required>
+        <option value="">Selecione…</option>
+        {% for leitor in leitores %}
+        <option value="{{ leitor.id }}">{{ leitor.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit">Emprestar</button>
+  </form>
+</section>
+
+<section aria-labelledby="titulo-ativos">
+  <h2 id="titulo-ativos">Empréstimos ativos</h2>
+  {% if emprestimos_ativos %}
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Livro</th>
+        <th scope="col">Leitor</th>
+        <th scope="col">Emprestado em</th>
+        <th scope="col">Devolver até</th>
+        <th scope="col">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for emprestimo in emprestimos_ativos %}
+      <tr>
+        <td>{{ emprestimo.titulo_do_livro }}</td>
+        <td>{{ emprestimo.nome_do_leitor }}</td>
+        <td>{{ emprestimo.data_emprestimo }}</td>
+        <td>{{ emprestimo.data_prevista }}</td>
+        <td>
+          <form method="post" action="/emprestimos/{{ emprestimo.id }}/devolver">
+            <button type="submit"
+                    aria-label="Devolver {{ emprestimo.titulo_do_livro }} de {{ emprestimo.nome_do_leitor }}">Devolver</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Nenhum empréstimo ativo.</p>
+  {% endif %}
+</section>
+{% endblock %}

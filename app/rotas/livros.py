@@ -6,6 +6,7 @@ from app import repositorio
 from app.db import obter_conexao
 from app.isbn import isbn13_valido, normalizar_isbn
 from app.schemas import LivroEntrada, LivroSaida
+from app.servicos import biblioteca
 from app.servicos.catalogo_externo import CatalogoIndisponivel, buscar_dados_do_livro
 
 router = APIRouter(prefix="/api/livros", tags=["livros"])
@@ -61,15 +62,12 @@ def atualizar(
 
 @router.delete("/{livro_id}", status_code=204)
 def excluir(livro_id: int, conexao: sqlite3.Connection = Depends(obter_conexao)):
-    buscar_livro_ou_404(conexao, livro_id)
-
-    emprestimos_ativos = repositorio.contar_emprestimos_ativos_do_livro(conexao, livro_id)
-    if emprestimos_ativos > 0:
-        raise HTTPException(
-            status_code=409, detail="Livro com empréstimo ativo não pode ser excluído"
-        )
-
-    repositorio.excluir_livro(conexao, livro_id)
+    try:
+        biblioteca.excluir_livro(conexao, livro_id)
+    except biblioteca.NaoEncontrado as erro:
+        raise HTTPException(status_code=404, detail=str(erro))
+    except biblioteca.RegraViolada as erro:
+        raise HTTPException(status_code=409, detail=str(erro))
     return Response(status_code=204)
 
 

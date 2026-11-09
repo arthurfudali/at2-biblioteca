@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% set pagina_atual = "livros" %}
+{% block titulo %}Livros{% endblock %}
+
+{% block conteudo %}
+<h1>Livros</h1>
+
+<section aria-labelledby="titulo-cadastro">
+  <h2 id="titulo-cadastro">Cadastrar livro</h2>
+  <form method="post" action="/livros">
+    <div class="campo">
+      <label for="isbn">ISBN</label>
+      <div class="linha">
+        <input id="isbn" name="isbn" required inputmode="numeric" value="{{ dados.isbn or '' }}"
+               aria-describedby="dica-isbn">
+        <button type="button" id="buscar-isbn" class="secundario">Buscar dados pelo ISBN</button>
+      </div>
+      <p id="dica-isbn" class="dica">ISBN-13, com ou sem hífens.</p>
+      <p id="status-busca" class="dica" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="campo">
+      <label for="titulo">Título</label>
+      <input id="titulo" name="titulo" required value="{{ dados.titulo or '' }}">
+    </div>
+
+    <div class="campo">
+      <label for="autor">Autor</label>
+      <input id="autor" name="autor" required value="{{ dados.autor or '' }}">
+    </div>
+
+    <div class="campo">
+      <label for="quantidade_total">Quantidade</label>
+      <input id="quantidade_total" name="quantidade_total" type="number" min="1" required
+             value="{{ dados.quantidade_total or 1 }}">
+    </div>
+
+    <button type="submit">Cadastrar livro</button>
+  </form>
+</section>
+
+<section aria-labelledby="titulo-acervo">
+  <h2 id="titulo-acervo">Acervo</h2>
+  {% if livros %}
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Título</th>
+        <th scope="col">Autor</th>
+        <th scope="col">ISBN</th>
+        <th scope="col">Disponíveis</th>
+        <th scope="col">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for livro in livros %}
+      <tr>
+        <td>{{ livro.titulo }}</td>
+        <td>{{ livro.autor }}</td>
+        <td>{{ livro.isbn }}</td>
+        <td>{{ livro.disponiveis }} de {{ livro.quantidade_total }}</td>
+        <td>
+          <form method="post" action="/livros/{{ livro.id }}/excluir">
+            <button type="submit" class="perigo" aria-label="Excluir {{ livro.titulo }}">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Nenhum livro cadastrado.</p>
+  {% endif %}
+</section>
+
+<script>
+  // Preenche título e autor consultando a API, que por sua vez consulta a OpenLibrary.
+  document.getElementById("buscar-isbn").addEventListener("click", async () => {
+    const isbn = document.getElementById("isbn").value;
+    const status = document.getElementById("status-busca");
+    status.textContent = "Buscando…";
+
+    const resposta = await fetch(`/api/livros/preencher/${encodeURIComponent(isbn)}`);
+    const corpo = await resposta.json();
+
+    if (!resposta.ok) {
+      status.textContent = corpo.detail;
+      return;
+    }
+    document.getElementById("titulo").value = corpo.titulo;
+    document.getElementById("autor").value = corpo.autor;
+    status.textContent = "Dados preenchidos a partir do catálogo.";
+  });
+</script>
+{% endblock %}

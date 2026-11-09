@@ -1,0 +1,93 @@
+/* Cores escolhidas para contraste mínimo de 4.5:1 (WCAG 2.1 AA). */
+:root {
+  --texto: #1f2328;
+  --texto-suave: #4a5059;
+  --fundo: #ffffff;
+  --fundo-suave: #f3f5f8;
+  --borda: #8a929c;
+  --primaria: #1a4f8b;
+  --perigo: #a3201c;
+  --sucesso-fundo: #e6f4ea;
+  --sucesso-texto: #1e5631;
+  --erro-fundo: #fdecea;
+  --foco: #f2a900;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  color: var(--texto);
+  background: var(--fundo);
+  line-height: 1.5;
+}
+
+/* Fica fora da tela até receber foco pelo Tab. */
+.pular-para-conteudo {
+  position: absolute;
+  left: -9999px;
+}
+.pular-para-conteudo:focus {
+  left: 1rem;
+  top: 1rem;
+  background: var(--fundo);
+  padding: 0.5rem 1rem;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 2rem;
+  background: var(--primaria);
+}
+header .marca { margin: 0; font-weight: 700; color: #fff; }
+header ul { display: flex; gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
+header a { color: #fff; }
+header a[aria-current="page"] { font-weight: 700; }
+
+main { max-width: 60rem; margin: 0 auto; padding: 1rem 2rem 3rem; }
+
+section { margin-top: 2rem; }
+
+.campo { margin-bottom: 1rem; }
+.campo label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
+.linha { display: flex; gap: 0.5rem; }
+
+input, select {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--borda);
+  border-radius: 4px;
+  min-width: 18rem;
+}
+
+button {
+  font: inherit;
+  padding: 0.4rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--primaria);
+  color: #fff;
+  cursor: pointer;
+}
+button.secundario { background: var(--fundo-suave); color: var(--primaria); border: 1px solid var(--primaria); }
+button.perigo { background: var(--perigo); }
+
+/* Foco sempre visível, para quem navega pelo teclado. */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+}
+
+.dica { color: var(--texto-suave); font-size: 0.9rem; margin: 0.25rem 0 0; }
+
+.erro { background: var(--erro-fundo); border-left: 4px solid var(--perigo); padding: 0.5rem 1rem; }
+.erro p { margin: 0.25rem 0; }
+.sucesso { background: var(--sucesso-fundo); color: var(--sucesso-texto); padding: 0.5rem 1rem; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--borda); }
+th { background: var(--fundo-suave); }
+td form { margin: 0; }

@@ -6,9 +6,9 @@ from tests.factories import LeitorFactory, LivroFactory
 
 pytestmark = pytest.mark.integration
 
-# A rota usa "hoje()" importada em app.rotas.emprestimos, então é lá que
+# O serviço usa "hoje()" importada em app.servicos.biblioteca, então é lá que
 # o patch precisa acontecer (no módulo que USA a função, não onde ela nasce).
-CAMINHO_DO_HOJE = "app.rotas.emprestimos.hoje"
+CAMINHO_DO_HOJE = "app.servicos.biblioteca.hoje"
 
 
 def emprestar(cliente, livro_id: int, leitor_id: int):

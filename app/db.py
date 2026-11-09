@@ -41,7 +41,11 @@ def conectar() -> sqlite3.Connection:
     # timeout=10: sob carga (Locust), várias requisições escrevem ao mesmo
     # tempo; em vez de falhar na hora com "database is locked", a conexão
     # espera até 10 s pela vez dela.
-    conexao = sqlite3.connect(caminho_do_banco(), timeout=10)
+    #
+    # check_same_thread=False: o FastAPI pode abrir a conexão numa thread
+    # (dependência síncrona) e usá-la em outra (rota async). Cada conexão
+    # pertence a uma única requisição, então nunca é usada em paralelo.
+    conexao = sqlite3.connect(caminho_do_banco(), timeout=10, check_same_thread=False)
     conexao.row_factory = sqlite3.Row
     conexao.execute("PRAGMA foreign_keys = ON")
     return conexao

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{% endblock %} · Biblioteca</title>
+  <link rel="stylesheet" href="/static/estilo.css">
+</head>
+<body>
+  <a class="pular-para-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+  <header>
+    <p class="marca">Biblioteca</p>
+    <nav aria-label="Principal">
+      <ul>
+        <li><a href="/" {% if pagina_atual == "livros" %}aria-current="page"{% endif %}>Livros</a></li>
+        <li><a href="/leitores" {% if pagina_atual == "leitores" %}aria-current="page"{% endif %}>Leitores</a></li>
+        <li><a href="/emprestimos" {% if pagina_atual == "emprestimos" %}aria-current="page"{% endif %}>Empréstimos</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="conteudo">
+    {% if erros %}
+      <div class="erro" role="alert">
+        {% for erro in erros %}<p>{{ erro }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    {% block conteudo %}{% endblock %}
+  </main>
+</body>
+</html>
