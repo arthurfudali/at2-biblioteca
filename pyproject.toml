@@ -1,0 +1,37 @@
+[project]
+name = "biblioteca"
+version = "0.1.0"
+description = "Sistema de empréstimo de livros — AT2 de Qualidade e Testes de Software"
+authors = [
+    { name = "Arthur Fudali", email = "arthur.fudali@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "email-validator>=2.3.0",
+    "fastapi>=0.162.2",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "python-multipart>=0.0.33",
+    "uvicorn>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "axe-playwright-python>=0.1.8",
+    "faker>=40.52.0",
+    "locust>=2.47.0",
+    "pytest>=9.2.0",
+    "pytest-mock>=3.17.0",
+    "pytest-playwright>=0.10.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+# Aviso interno do Starlette sobre httpx; não vem do nosso código.
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]
+markers = [
+    "integration: testes de integração da API com TestClient",
+    "e2e: testes ponta a ponta no navegador com Playwright",
+    "accessibility: auditoria WCAG 2.1 AA com Axe e navegação por teclado",
+]
