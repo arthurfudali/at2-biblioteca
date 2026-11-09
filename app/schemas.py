@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.isbn import isbn13_valido, normalizar_isbn
@@ -38,3 +40,20 @@ class LeitorSaida(BaseModel):
     nome: str
     cpf: str
     email: str
+
+
+class EmprestimoEntrada(BaseModel):
+    livro_id: int
+    leitor_id: int
+
+
+class EmprestimoSaida(BaseModel):
+    id: int
+    livro_id: int
+    leitor_id: int
+    titulo_do_livro: str
+    nome_do_leitor: str
+    data_emprestimo: date
+    data_prevista: date
+    data_devolucao: date | None
+    multa: float

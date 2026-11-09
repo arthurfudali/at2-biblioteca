@@ -77,3 +77,68 @@ def inserir_leitor(conexao: sqlite3.Connection, dados: dict) -> int:
     except sqlite3.IntegrityError as erro:
         raise RegistroDuplicado from erro
     return cursor.lastrowid
+
+
+SELECT_EMPRESTIMO = """
+SELECT
+    emprestimos.*,
+    livros.titulo AS titulo_do_livro,
+    leitores.nome AS nome_do_leitor
+FROM emprestimos
+JOIN livros ON livros.id = emprestimos.livro_id
+JOIN leitores ON leitores.id = emprestimos.leitor_id
+"""
+
+
+def listar_emprestimos(conexao: sqlite3.Connection, somente_ativos: bool) -> list[dict]:
+    consulta = SELECT_EMPRESTIMO
+    if somente_ativos:
+        consulta += " WHERE emprestimos.data_devolucao IS NULL"
+    consulta += " ORDER BY emprestimos.id DESC"
+    linhas = conexao.execute(consulta).fetchall()
+    return [dict(linha) for linha in linhas]
+
+
+def buscar_emprestimo(conexao: sqlite3.Connection, emprestimo_id: int) -> dict | None:
+    linha = conexao.execute(
+        SELECT_EMPRESTIMO + " WHERE emprestimos.id = ?", (emprestimo_id,)
+    ).fetchone()
+    if linha is None:
+        return None
+    return dict(linha)
+
+
+def contar_emprestimos_ativos_do_leitor(conexao: sqlite3.Connection, leitor_id: int) -> int:
+    linha = conexao.execute(
+        "SELECT COUNT(*) FROM emprestimos WHERE leitor_id = ? AND data_devolucao IS NULL",
+        (leitor_id,),
+    ).fetchone()
+    return linha[0]
+
+
+def contar_emprestimos_ativos_do_livro(conexao: sqlite3.Connection, livro_id: int) -> int:
+    linha = conexao.execute(
+        "SELECT COUNT(*) FROM emprestimos WHERE livro_id = ? AND data_devolucao IS NULL",
+        (livro_id,),
+    ).fetchone()
+    return linha[0]
+
+
+def inserir_emprestimo(
+    conexao: sqlite3.Connection, livro_id: int, leitor_id: int, data_emprestimo, data_prevista
+) -> int:
+    cursor = conexao.execute(
+        "INSERT INTO emprestimos (livro_id, leitor_id, data_emprestimo, data_prevista)"
+        " VALUES (?, ?, ?, ?)",
+        (livro_id, leitor_id, data_emprestimo.isoformat(), data_prevista.isoformat()),
+    )
+    return cursor.lastrowid
+
+
+def registrar_devolucao(
+    conexao: sqlite3.Connection, emprestimo_id: int, data_devolucao, multa: float
+) -> None:
+    conexao.execute(
+        "UPDATE emprestimos SET data_devolucao = ?, multa = ? WHERE id = ?",
+        (data_devolucao.isoformat(), multa, emprestimo_id),
+    )

@@ -42,6 +42,14 @@ def atualizar(
     livro_id: int, livro: LivroEntrada, conexao: sqlite3.Connection = Depends(obter_conexao)
 ):
     buscar_livro_ou_404(conexao, livro_id)
+
+    emprestimos_ativos = repositorio.contar_emprestimos_ativos_do_livro(conexao, livro_id)
+    if livro.quantidade_total < emprestimos_ativos:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Há {emprestimos_ativos} exemplares emprestados; a quantidade não pode ser menor",
+        )
+
     try:
         repositorio.atualizar_livro(conexao, livro_id, livro.model_dump())
     except repositorio.RegistroDuplicado:
@@ -52,5 +60,12 @@ def atualizar(
 @router.delete("/{livro_id}", status_code=204)
 def excluir(livro_id: int, conexao: sqlite3.Connection = Depends(obter_conexao)):
     buscar_livro_ou_404(conexao, livro_id)
+
+    emprestimos_ativos = repositorio.contar_emprestimos_ativos_do_livro(conexao, livro_id)
+    if emprestimos_ativos > 0:
+        raise HTTPException(
+            status_code=409, detail="Livro com empréstimo ativo não pode ser excluído"
+        )
+
     repositorio.excluir_livro(conexao, livro_id)
     return Response(status_code=204)

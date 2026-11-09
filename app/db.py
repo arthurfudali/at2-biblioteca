@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS leitores (
 
 CREATE TABLE IF NOT EXISTS emprestimos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    livro_id INTEGER NOT NULL REFERENCES livros(id),
+    -- CASCADE: ao excluir um livro (só permitido sem empréstimo ativo),
+    -- o histórico de empréstimos já devolvidos vai junto.
+    livro_id INTEGER NOT NULL REFERENCES livros(id) ON DELETE CASCADE,
     leitor_id INTEGER NOT NULL REFERENCES leitores(id),
     data_emprestimo TEXT NOT NULL,
     data_prevista TEXT NOT NULL,

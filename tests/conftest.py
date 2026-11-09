@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from tests.factories import LeitorFactory, LivroFactory
 
 
 @pytest.fixture
@@ -17,3 +18,15 @@ def cliente(tmp_path, monkeypatch):
 
     # Teardown: roda depois do teste, mesmo se ele falhar.
     caminho_do_banco.unlink(missing_ok=True)
+
+
+@pytest.fixture
+def livro_cadastrado(cliente):
+    resposta = cliente.post("/api/livros", json=LivroFactory.criar_dados(quantidade_total=2))
+    return resposta.json()
+
+
+@pytest.fixture
+def leitor_cadastrado(cliente):
+    resposta = cliente.post("/api/leitores", json=LeitorFactory.criar_dados())
+    return resposta.json()
