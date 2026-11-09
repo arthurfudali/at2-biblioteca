@@ -4,7 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 
 from app import repositorio
 from app.db import obter_conexao
+from app.isbn import isbn13_valido, normalizar_isbn
 from app.schemas import LivroEntrada, LivroSaida
+from app.servicos.catalogo_externo import CatalogoIndisponivel, buscar_dados_do_livro
 
 router = APIRouter(prefix="/api/livros", tags=["livros"])
 
@@ -69,3 +71,22 @@ def excluir(livro_id: int, conexao: sqlite3.Connection = Depends(obter_conexao))
 
     repositorio.excluir_livro(conexao, livro_id)
     return Response(status_code=204)
+
+
+@router.get("/preencher/{isbn}")
+def preencher_pelo_isbn(isbn: str):
+    """Sugere título e autor consultando a OpenLibrary. Não grava nada."""
+    isbn = normalizar_isbn(isbn)
+    if not isbn13_valido(isbn):
+        raise HTTPException(status_code=422, detail="ISBN-13 inválido")
+
+    try:
+        dados = buscar_dados_do_livro(isbn)
+    except CatalogoIndisponivel:
+        raise HTTPException(
+            status_code=503, detail="Catálogo externo indisponível, preencha manualmente"
+        )
+
+    if dados is None:
+        raise HTTPException(status_code=404, detail="ISBN não encontrado no catálogo")
+    return dados
