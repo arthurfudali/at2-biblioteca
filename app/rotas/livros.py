@@ -1,9 +1,9 @@
 import sqlite3
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response
 
 from app import repositorio
-from app.db import obter_conexao
+from app.db import Conexao
 from app.isbn import isbn13_valido, normalizar_isbn
 from app.schemas import LivroEntrada, LivroSaida
 from app.servicos import biblioteca
@@ -22,12 +22,12 @@ def buscar_livro_ou_404(conexao: sqlite3.Connection, livro_id: int) -> dict:
 
 
 @router.get("", response_model=list[LivroSaida])
-def listar(conexao: sqlite3.Connection = Depends(obter_conexao)):
+def listar(conexao: Conexao):
     return repositorio.listar_livros(conexao)
 
 
 @router.post("", response_model=LivroSaida, status_code=201)
-def cadastrar(livro: LivroEntrada, conexao: sqlite3.Connection = Depends(obter_conexao)):
+def cadastrar(livro: LivroEntrada, conexao: Conexao):
     try:
         livro_id = repositorio.inserir_livro(conexao, livro.model_dump())
     except repositorio.RegistroDuplicado:
@@ -36,13 +36,13 @@ def cadastrar(livro: LivroEntrada, conexao: sqlite3.Connection = Depends(obter_c
 
 
 @router.get("/{livro_id}", response_model=LivroSaida)
-def buscar(livro_id: int, conexao: sqlite3.Connection = Depends(obter_conexao)):
+def buscar(livro_id: int, conexao: Conexao):
     return buscar_livro_ou_404(conexao, livro_id)
 
 
 @router.put("/{livro_id}", response_model=LivroSaida)
 def atualizar(
-    livro_id: int, livro: LivroEntrada, conexao: sqlite3.Connection = Depends(obter_conexao)
+    livro_id: int, livro: LivroEntrada, conexao: Conexao
 ):
     buscar_livro_ou_404(conexao, livro_id)
 
@@ -61,7 +61,7 @@ def atualizar(
 
 
 @router.delete("/{livro_id}", status_code=204)
-def excluir(livro_id: int, conexao: sqlite3.Connection = Depends(obter_conexao)):
+def excluir(livro_id: int, conexao: Conexao):
     try:
         biblioteca.excluir_livro(conexao, livro_id)
     except biblioteca.NaoEncontrado as erro:

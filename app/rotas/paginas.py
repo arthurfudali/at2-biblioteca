@@ -1,15 +1,14 @@
 """Páginas HTML. Formulários comuns (POST + redirecionamento), sem framework JS."""
 
-import sqlite3
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 
 from app import repositorio
-from app.db import obter_conexao
+from app.db import Conexao
 from app.schemas import LeitorEntrada, LivroEntrada
 from app.servicos import biblioteca
 
@@ -72,12 +71,12 @@ def pagina_de_livros(request, conexao, erros=None, dados_digitados=None, status_
 
 
 @router.get("/", response_class=HTMLResponse)
-def livros(request: Request, conexao: sqlite3.Connection = Depends(obter_conexao)):
+def livros(request: Request, conexao: Conexao):
     return pagina_de_livros(request, conexao)
 
 
 @router.post("/livros", response_class=HTMLResponse)
-async def cadastrar_livro(request: Request, conexao: sqlite3.Connection = Depends(obter_conexao)):
+async def cadastrar_livro(request: Request, conexao: Conexao):
     dados_digitados = dict(await request.form())
 
     try:
@@ -97,7 +96,7 @@ async def cadastrar_livro(request: Request, conexao: sqlite3.Connection = Depend
 
 @router.post("/livros/{livro_id}/excluir", response_class=HTMLResponse)
 def excluir_livro(
-    request: Request, livro_id: int, conexao: sqlite3.Connection = Depends(obter_conexao)
+    request: Request, livro_id: int, conexao: Conexao
 ):
     try:
         biblioteca.excluir_livro(conexao, livro_id)
@@ -119,12 +118,12 @@ def pagina_de_leitores(request, conexao, erros=None, dados_digitados=None, statu
 
 
 @router.get("/leitores", response_class=HTMLResponse)
-def leitores(request: Request, conexao: sqlite3.Connection = Depends(obter_conexao)):
+def leitores(request: Request, conexao: Conexao):
     return pagina_de_leitores(request, conexao)
 
 
 @router.post("/leitores", response_class=HTMLResponse)
-async def cadastrar_leitor(request: Request, conexao: sqlite3.Connection = Depends(obter_conexao)):
+async def cadastrar_leitor(request: Request, conexao: Conexao):
     dados_digitados = dict(await request.form())
 
     try:
@@ -156,10 +155,7 @@ def pagina_de_emprestimos(request, conexao, erros=None, aviso=None, status_code=
 
 
 @router.get("/emprestimos", response_class=HTMLResponse)
-def emprestimos(
-    request: Request, multa: float | None = None,
-    conexao: sqlite3.Connection = Depends(obter_conexao),
-):
+def emprestimos(request: Request, conexao: Conexao, multa: float | None = None):
     aviso = None
     if multa is not None:
         valor_formatado = f"{multa:.2f}".replace(".", ",")
@@ -168,7 +164,7 @@ def emprestimos(
 
 
 @router.post("/emprestimos", response_class=HTMLResponse)
-async def emprestar(request: Request, conexao: sqlite3.Connection = Depends(obter_conexao)):
+async def emprestar(request: Request, conexao: Conexao):
     formulario = await request.form()
 
     try:
@@ -191,7 +187,7 @@ async def emprestar(request: Request, conexao: sqlite3.Connection = Depends(obte
 
 @router.post("/emprestimos/{emprestimo_id}/devolver", response_class=HTMLResponse)
 def devolver(
-    request: Request, emprestimo_id: int, conexao: sqlite3.Connection = Depends(obter_conexao)
+    request: Request, emprestimo_id: int, conexao: Conexao
 ):
     try:
         multa = biblioteca.realizar_devolucao(conexao, emprestimo_id)

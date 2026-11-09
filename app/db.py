@@ -1,5 +1,8 @@
 import os
 import sqlite3
+from typing import Annotated
+
+from fastapi import Depends
 
 ESQUEMA = """
 CREATE TABLE IF NOT EXISTS livros (
@@ -68,3 +71,10 @@ def obter_conexao():
         conexao.commit()
     finally:
         conexao.close()
+
+
+# scope="function": o commit (código depois do yield) roda ANTES de a resposta
+# ser enviada. No padrão ("request") ele roda depois; aí o navegador recebe o
+# redirecionamento, pede a página de novo e ainda não enxerga o que acabou de
+# ser gravado. Bug encontrado pelos testes E2E.
+Conexao = Annotated[sqlite3.Connection, Depends(obter_conexao, scope="function")]

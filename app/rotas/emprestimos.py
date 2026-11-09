@@ -1,9 +1,7 @@
-import sqlite3
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
 from app import repositorio
-from app.db import obter_conexao
+from app.db import Conexao
 from app.schemas import EmprestimoEntrada, EmprestimoSaida
 from app.servicos.biblioteca import (
     NaoEncontrado,
@@ -16,12 +14,12 @@ router = APIRouter(prefix="/api/emprestimos", tags=["emprestimos"])
 
 
 @router.get("", response_model=list[EmprestimoSaida])
-def listar(ativos: bool = False, conexao: sqlite3.Connection = Depends(obter_conexao)):
+def listar(conexao: Conexao, ativos: bool = False):
     return repositorio.listar_emprestimos(conexao, somente_ativos=ativos)
 
 
 @router.post("", response_model=EmprestimoSaida, status_code=201)
-def emprestar(pedido: EmprestimoEntrada, conexao: sqlite3.Connection = Depends(obter_conexao)):
+def emprestar(pedido: EmprestimoEntrada, conexao: Conexao):
     try:
         emprestimo_id = realizar_emprestimo(conexao, pedido.livro_id, pedido.leitor_id)
     except NaoEncontrado as erro:
@@ -32,7 +30,7 @@ def emprestar(pedido: EmprestimoEntrada, conexao: sqlite3.Connection = Depends(o
 
 
 @router.post("/{emprestimo_id}/devolucao", response_model=EmprestimoSaida)
-def devolver(emprestimo_id: int, conexao: sqlite3.Connection = Depends(obter_conexao)):
+def devolver(emprestimo_id: int, conexao: Conexao):
     try:
         realizar_devolucao(conexao, emprestimo_id)
     except NaoEncontrado as erro:
